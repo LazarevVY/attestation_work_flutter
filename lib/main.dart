@@ -1,14 +1,34 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-void main() {
-  runApp(const MyAttestationWorkApp());
+Future <List<User>> fetchUsers() async {
+  const String URI = 'https://jsonplaceholder.typicode.com/users';
+  final response = await http.get ( Uri.parse ( URI ) );
+  if ( response.statusCode == 200 ) {
+    //print(response.body);
+    List responseJson = jsonDecode ( response.body );
+    List <User> users = createUserList ( responseJson );////////////////////////
+    return users;//jsonDecode ( response.body ) ;//User.fromJson (sonDecode ( response.body ));
+  } else {
+    throw Exception ( 'Failed to load album' );
+  }
 }
 
+List<User> createUserList (List data) {
+  List<User> list = [];
+  for (int i = 0; i< data.length; i++) {
+    User? user = User.fromJson( data[i] );
+    list.add(user);
+  }
+  return list;
+}
 class Geo {
   final String lat;
   final String lng;
 
-  Geo({ required this.lat, required this.lng });
+  const Geo({ required this.lat, required this.lng });
 
   factory Geo.fromJson (Map<String, dynamic> json) {
     return Geo (
@@ -22,21 +42,24 @@ class Address {
   final String street;
   final String suite;
   final String city;
-  final Geo geo;
+  final String zipcode;
+  final  geo;
 
-  Address({
+  const Address({
     required this.street,
     required this.suite,
     required this.city,
+    required this.zipcode,
     required this.geo
   });
 
   factory Address.fromJson (Map<String, dynamic> json) {
     return Address(
-        street: json [ 'street' ],
-        suite:  json [ 'suite' ],
-        city:   json [ 'city' ],
-        geo:    json [ 'geo' ]
+        street:  json [ 'street'  ],
+        suite:   json [ 'suite'   ],
+        city:    json [ 'city'    ],
+        zipcode: json [ 'zipcode' ],
+        geo:     Geo.fromJson(json [ 'geo'     ]),
     );
   }
 }
@@ -46,7 +69,7 @@ class Company {
   final String catchPhrase;
   final String bs;
 
-  Company({
+  const Company({
     required this.name,
     required this.catchPhrase,
     required this.bs
@@ -87,12 +110,16 @@ class User {
       name:     json [ 'name'    ],
       username: json [ 'username'],
       email:    json [ 'email'   ],
-      address:  json [ 'address' ],
+      address:  Address.fromJson(json [ 'address' ]),
       phone:    json [ 'phone'   ],
       website:  json [ 'website' ],
-      company:  json [ 'company' ]
+      company:  Company.fromJson(json [ 'company' ]),
     );
   }
+}
+
+void main() {
+  runApp(const MyAttestationWorkApp());
 }
 
 class MyAttestationWorkApp extends StatelessWidget {
@@ -102,7 +129,7 @@ class MyAttestationWorkApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: "/",
+      initialRoute: "/main",
       routes: {
         "/" :     (context) => AuthScreen(),
         "/main" : (context) => MainScreen(),
@@ -116,7 +143,6 @@ class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
   final String userPhone = "9871234567";
   final String userPass  = "P@s\$w0rd";
-
 
   @override
   _AuthScreenState createState() => _AuthScreenState();
@@ -163,10 +189,71 @@ class MainScreen extends StatefulWidget {
   _MainScreenState createState() => _MainScreenState();
 }
 
+
+// Column test = Column(
+//   children: [
+//     Text(snapshot.data![1].username,
+//         textAlign: TextAlign.center,
+//         style: const TextStyle( fontSize: 32, color: Colors.indigo)),
+//     const SizedBox(height: 16,),
+//     Text(snapshot.data![1].address.street,
+//       textAlign: TextAlign.justify,
+//       style: const TextStyle( fontSize: 20, color: Colors.black45),
+//     ),
+//   ],
+// );
+
+
+
+
 class _MainScreenState extends State<MainScreen> {
+  late Future<List<User>> futureUsers;
+
+  @override
+  void initState() {
+    super.initState();
+    futureUsers = fetchUsers();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return MaterialApp(
+      title: "Fetch User data",
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Fetch Data Example'),
+        ),
+          body: Center(
+              child: FutureBuilder<List<User>>(
+                future: futureUsers,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    print (snapshot.data!);
+                    return ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                               Text(snapshot.data![index].username,
+                                  style: TextStyle(fontWeight: FontWeight.bold)
+                              ),
+                              Divider()
+                            ],
+                          );
+                        }
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+
+                  // By default, show a loading spinner.
+                  return const CircularProgressIndicator();
+                },
+              )
+          )
+      ),
+    );
   }
 }
 
