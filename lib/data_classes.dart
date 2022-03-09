@@ -17,7 +17,7 @@ class Address {
   final String suite;
   final String city;
   final String zipcode;
-  final  geo;
+  final    Geo geo;
 
   const Address({
     required this.street,

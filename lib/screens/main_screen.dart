@@ -63,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    futureUsers = fetchUsersTest();
+    futureUsers = fetchUsers();//fetchUsersTest();
   }
 
   @override
@@ -73,14 +73,13 @@ class _MainScreenState extends State<MainScreen> {
       title: "Fetch User data",
       home: Scaffold(
           appBar: AppBar(
-            title: const Text('Fetch Data Example'),
+            title: const Text('Активные пользователи'),
           ),
           body: Center(
               child: FutureBuilder<List<User>>(
                 future: futureUsers,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    print (snapshot.data!);
                     return ListView.builder(
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
