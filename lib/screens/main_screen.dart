@@ -1,8 +1,10 @@
+import 'package:attestation_work_flutter/screens/user_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../classes.dart';
+import '../data_classes.dart';
+import '../stubs.dart';
 
 
 Future <List<User>> fetchUsers() async {
@@ -42,26 +44,32 @@ class _MainScreenState extends State<MainScreen> {
     const TextStyle _userNameStyle = TextStyle(color: Colors.indigo); //для свойства title
     const TextStyle _idStyle = TextStyle(color: Colors.black38);      //для свойства title
     return ListTile (
-      leading: const Icon(Icons.account_circle),
-      subtitle: Text ( snapshot.data![index].email,
+      leading: CircleAvatar(//const Icon(Icons.account_circle),
+        child: Text(snapshot.data![index].username[0]),
+      ),
+        title: Text( snapshot.data![index].username,
+            style: _userNameStyle),
+        subtitle: Text ( snapshot.data![index].email,
           style: _emailStyle),
-      title: Text( snapshot.data![index].username,
-          style: _userNameStyle),
       trailing: Text("${snapshot.data![index].id}",
           style: _idStyle),
-      onTap: (){}
+      onTap: (){
+        //Navigator.of(context).restorablePushNamed("/details", arguments: snapshot.data![index]);//("/details");
+        Navigator.push(context,MaterialPageRoute(builder: (context) => UserDetailsScreen(user: snapshot.data![index])));//("/details");
+      }
     );
   }
 
   @override
   void initState() {
     super.initState();
-    futureUsers = fetchUsers();
+    futureUsers = fetchUsersTest();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "Fetch User data",
       home: Scaffold(
           appBar: AppBar(

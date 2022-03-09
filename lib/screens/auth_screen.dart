@@ -12,11 +12,11 @@ class AuthData {
 
 class UI extends MaterialApp {
 
-  // final containerDecoration = const BoxDecoration(
-  //     image: DecorationImage(
-  //       image : AssetImage("assets/images/bg1.jpeg"),
-  //       fit   : BoxFit.cover,
-  //     ));
+  static const containerDecoration = BoxDecoration(
+      image: DecorationImage(
+        image : AssetImage("assets/images/bg.jpg"),
+        fit   : BoxFit.cover,
+      ));
 
   // final logo = const SizedBox(
   //     width   : 110,
@@ -25,7 +25,7 @@ class UI extends MaterialApp {
   //     )));
 
   static const borderStyle =  OutlineInputBorder(
-      borderRadius : BorderRadius.all(Radius.circular(36)),
+      borderRadius : BorderRadius.zero,//BorderRadius.all(Radius.circular(36)),
       borderSide   : BorderSide(
           color    : Color(0xffeceff1),
           width    : 5
@@ -39,7 +39,7 @@ class UI extends MaterialApp {
   static var bnLoginStyle = ElevatedButton.styleFrom(
       primary : const Color(0xFF0079D0),
       shape   : RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(36.0)
+          borderRadius: BorderRadius.zero//BorderRadius.circular(36.0)
       ));
 }
 
@@ -64,7 +64,6 @@ class AuthScreen extends StatefulWidget {
   AuthData definedLogin           = AuthData(phone: "9992223344", pass: "P@s\$w0rd");
   static const int maxPhoneLength = 10;
   static const int maxPassLength  = 10;
-  static const String badLogin    = "Пользователь не существует\nили неверно введен пароль.";
 
   @override
   _AuthScreenState createState() => _AuthScreenState();
@@ -72,7 +71,6 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _enteredLogin = AuthData(phone: "", pass: "");
-  late var _badLogin     = "";
   void _phoneOnChanged (String val){
     setState(() {
       _enteredLogin.phone = val;
@@ -128,7 +126,7 @@ class _AuthScreenState extends State<AuthScreen> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
           body: Container(
-            //decoration : UI().containerDecoration,
+            decoration : UI.containerDecoration,
             width      : double.infinity,
             height     : double.infinity,
             padding    : const EdgeInsets.symmetric(horizontal: 50),
@@ -139,7 +137,8 @@ class _AuthScreenState extends State<AuthScreen> {
                   //UI().logo,
                   const SizedBox(height: 20,),
                   const Text("Введите логин в виде ${AuthScreen.maxPhoneLength} цифр номера телефона",
-                    style: TextStyle(fontSize: 16, color: Color.fromRGBO(0, 0, 0, 0.6)),
+                    style: TextStyle(fontSize: 18, color: Color.fromRGBO(0, 0, 0, 0.6)),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20,),
                   TextField(
@@ -169,23 +168,16 @@ class _AuthScreenState extends State<AuthScreen> {
                         focusedBorder : UI.borderStyle,
                       )),
                   //Text('${_enteredLogin.phone}/${_enteredLogin.pass}'), // вывод для отладки
-                  const SizedBox(height: 28,),
+                  const SizedBox(height: 56,),
                   SizedBox(
-                      width  : 154,
-                      height : 42,
+                      width  : 220,
+                      height : 52,
                       child  : ElevatedButton(
-                        child  : const Text("Войти"),
+                        child  : const Text("Войти",
+                          style: TextStyle(fontSize: 18, color: Color.fromRGBO(255, 255, 255, 1.0)),),
                         style : UI.bnLoginStyle,
                         onPressed : (){_login ();},
                       )),
-                  const SizedBox(height: 62,),
-                  InkWell(
-                    child: const Text("Забыли пароль?", style: UI.linkTextStyle),
-                    onTap: () {
-
-                    },),
-                  const SizedBox(height: 32,),
-                  Text ("${_badLogin}", style: TextStyle(color: Colors.red, fontSize: 18),),
                 ],
               ),
             ),

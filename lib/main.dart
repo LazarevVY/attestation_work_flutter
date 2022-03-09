@@ -18,7 +18,7 @@ class MyAttestationWorkApp extends StatelessWidget {
       routes: {
         "/" :     (context) => AuthScreen(),
         "/main" : (context) => MainScreen(),
-        "/details" : (context) => UserDetailsScreen()
+        //"/details" : (context) => UserDetailsScreen()
       },
     );
   }
