@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../data_classes.dart';
+import 'auth_screen.dart';
 // import '../stubs.dart'; // для отладки в режиме отсутствия доступа к Интернету
 
 Future <List<User>> fetchUsers () async {
@@ -35,6 +36,10 @@ class MainScreen extends StatefulWidget {
 }
 class _MainScreenState extends State<MainScreen> {
   late Future<List<User>> futureUsers;
+  late User lastUser;
+  // = const User ( id: 1, username: "", name: "",email: "", phone: "",
+  //     company: Company(name: "", catchPhrase: "", bs: ""), website: "",
+  //     address: Address(city: "", zipcode: "",street: "",suite: "", geo: Geo(lat: "", lng: "")));
 
   ListTile _item ( BuildContext context, int index, dynamic snapshot ){
     // цвета элементов ListTile
@@ -49,15 +54,72 @@ class _MainScreenState extends State<MainScreen> {
         subtitle: Text ( snapshot.data! [ index ].email,  style: _emailStyle),
       trailing: Text ( "${ snapshot.data![ index ].id }", style: _idStyle),
       onTap: (){
-        Navigator.push ( context, MaterialPageRoute ( builder: ( context ) => UserDetailsScreen (user: snapshot.data! [ index ] ) ) );
+         setState( () {
+           lastUser = snapshot.data! [ index ];
+           Navigator.push ( context, MaterialPageRoute ( builder: ( context ) => UserDetailsScreen (user: snapshot.data! [ index ] ) ) );
+         });
+
       }
     );
   }
+
+  AppBar _appBar () => AppBar (
+    title: const Text ( 'Активные пользователи' ),
+    actions: [
+      IconButton (
+          icon: const Icon ( Icons.arrow_back ),
+          tooltip: "Назад",
+          onPressed:  () {
+            Navigator.of ( context ).pop (); } ),
+      IconButton (
+          icon: const Icon ( Icons.logout ),
+          tooltip: "Выйти из профиля",
+          onPressed: () {
+            Navigator.pushAndRemoveUntil ( context, MaterialPageRoute ( builder: ( context ) => AuthScreen () ), (route) => false ); } ),
+    ]
+  );
+
+  Drawer _drawer () => Drawer (
+      child: ListView(
+          children: [
+            TextButton ( child: const Text ( "К списку задач" ), onPressed: () {
+              if ( lastUser != null ) {
+                Navigator.push ( context, MaterialPageRoute (
+                    builder: (context) => UserDetailsScreen ( user: lastUser ) ) );
+              }
+            }),
+            TextButton ( child: const Text ( "Выйти из профиля" ), onPressed: () {
+                Navigator.push ( context, MaterialPageRoute (
+                    builder: (context) => AuthScreen () ) );
+            })
+          ]
+      )
+  );
+
+  Center _body () => Center (
+      child: FutureBuilder <List<User>> (
+          future: futureUsers,
+          builder: ( context, snapshot ) {
+            if ( snapshot.hasData ) {
+              return ListView.builder (
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: ( context, index ) {
+                    return _item ( context, index, snapshot );
+                  }
+              );
+            } else if ( snapshot.hasError ) {
+              return Text ( '${ snapshot.error }' );
+            }
+            return const CircularProgressIndicator ();
+          }
+      )
+  );
 
   @override
   void initState () {
     super.initState ();
     futureUsers = fetchUsers ();//fetchUsersTest(); //для отладки в offline
+    futureUsers.then ( (value) => lastUser = value.first );
   }
 
   @override
@@ -66,27 +128,9 @@ class _MainScreenState extends State<MainScreen> {
       debugShowCheckedModeBanner: false,
       title: "Fetch User data",
       home: Scaffold (
-          appBar: AppBar (
-            title: const Text ( 'Активные пользователи' ),
-          ),
-          body: Center (
-              child: FutureBuilder <List<User>> (
-                future: futureUsers,
-                builder: ( context, snapshot ) {
-                  if ( snapshot.hasData ) {
-                    return ListView.builder (
-                          itemCount: snapshot.data!.length,
-                        itemBuilder: ( context, index ) {
-                          return _item ( context, index, snapshot );
-                        }
-                    );
-                  } else if ( snapshot.hasError ) {
-                    return Text ( '${ snapshot.error }' );
-                  }
-                  return const CircularProgressIndicator ();
-                }
-              )
-          )
+        appBar: _appBar (),
+        body:   _body (),
+        drawer: _drawer (),
       )
     );
   }

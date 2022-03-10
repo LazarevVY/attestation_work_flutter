@@ -15,6 +15,7 @@ class UI extends MaterialApp { ///// в классе хранятся "тяже�
       image: DecorationImage (
         image : AssetImage ( "assets/images/bg.jpg" ),
         fit   : BoxFit.cover,
+        opacity: 0.7,
       )
   );
 

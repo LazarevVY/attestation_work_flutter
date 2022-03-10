@@ -13,9 +13,9 @@ class MyAttestationWorkApp extends StatelessWidget {
   Widget build ( BuildContext context ) {
     return MaterialApp (
       debugShowCheckedModeBanner: false,
-      initialRoute: "/",
+      initialRoute: "/auth",
       routes: {
-        "/" :     (context) => AuthScreen (),
+        "/auth" :     (context) => AuthScreen (),
         "/main" : (context) => const MainScreen (),
       },
     );
