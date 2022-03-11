@@ -41,14 +41,23 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   int _nCompletedUserTasks =0;
 
   ListTile _item ( BuildContext context, int index, dynamic snapshot ) {
+    Color _flagColor = const Color ( 0x3F51B580 );
+    void _changeChecks ( bool? val ) {
+      setState(() {
+        snapshot.data [ index ].completed = val;
+        _flagColor = Color ( 0x00cc00f0);
+      });
+    }
     if ( snapshot.data! [ index ].completed ) { _nCompletedUserTasks ++ ;}
     return ListTile (
            title: Text ( snapshot.data! [ index ].title,
             style: const TextStyle ( color: Colors.indigo ) ),
         subtitle: Text ( "${ snapshot.data! [ index ].id }" ),
-        trailing: snapshot.data! [ index ].completed ?
-                    const Icon ( Icons.check_box_outlined, size: 16, color: Color.fromRGBO ( 0, 255, 0, 1.0 ) )
-                  : const Text ( "" )
+        trailing: Checkbox (
+            value: snapshot.data [ index ].completed,
+            activeColor: _flagColor,
+            onChanged: _changeChecks
+            )
     );
   }
 

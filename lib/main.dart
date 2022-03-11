@@ -15,7 +15,7 @@ class MyAttestationWorkApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: "/auth",
       routes: {
-        "/auth" :     (context) => AuthScreen (),
+        "/auth" : (context) => AuthScreen (),
         "/main" : (context) => const MainScreen (),
       },
     );
